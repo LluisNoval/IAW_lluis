@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversor EUR/USD</title>
+</head>
+<body>
+    <h1>Conversor de moneda</h1>
+    <form action="file.php" method="post">
+        <label>Import:</label>
+        <input type="number" name="quantitat" step="0.01" required>
+        <br><br>
+
+        <label>Conversió:</label><br>
+        <input type="radio" name="tipus" value="eurusd" checked> Euros → Dòlars<br>
+        <input type="radio" name="tipus" value="usdeur"> Dòlars → Euros<br><br>
+
+        <input type="submit" value="Convertir">
+    </form>
+</body>
+</html>
