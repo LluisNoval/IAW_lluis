@@ -1,6 +1,7 @@
 <?php
 // Obtenir l'hora del server
-$hora = date('G'); // 'G' retorna l'hora en format 0-23
+$hora = date('G'); // 'G' retorna l'hora en format 0-23, sense 0 ex (9,8)
+// Si fos opcio 'H' retorna amb 0 ex (09,08)
 
 // Mostrar l'hora del server
 $horaCompleta = date('H:i:s');
