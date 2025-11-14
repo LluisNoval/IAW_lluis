@@ -11,7 +11,8 @@ else {
 }
 
 //Guardi cookie durant 1 any
-setcookie($cookie_name, $visites, time() + (365 * 24 *60 *60));
+setcookie($cookie_name, $visites, time() + (365 * 24 *60 *60))
+prova;
 
 // Mostra missatge segons el nombre de visites
 if ($visites >= 10) {
