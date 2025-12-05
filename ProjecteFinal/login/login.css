@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa; /* Color de fons general */
+    color: #343a40; /* Color de text principal */
+
+    display: flex;
+    justify-content: center; /* Centra horitzontalment */
+    align-items: flex-start; /* Aliniar a la part superior */
+    padding-top: 50px; /* Espai des de dalt */
+    height: 100vh; /* Altura completa de la finestra */
+    margin: 0;
+}
+
+.titol-login {
+    text-align: center;
+}
+
+.login-container {
+    background-color: #ffffff; /* Color de fons del contenidor */
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(52, 58, 64, 0.1); /* Ombra suau */
+    width: 400px;
+}
+
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #007bff; /* Color primari per al botó */
+    color: #ffffff; /* Color del text del botó */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
