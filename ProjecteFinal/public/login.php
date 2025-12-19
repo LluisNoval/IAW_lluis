@@ -1,29 +1,56 @@
 <?php
-session_start(); //Inicia sessió
+// Controlador de login.
+session_start();
+require_once __DIR__ . '/../src/database.php';
+require_once __DIR__ . '/../src/flash_messages.php';
 
-// Comprovem si el formulari s'ha enviat
+// Comprova l'enviament del formulari.
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Agafem les dades del formulari
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $login_identifier = $_POST['login_identifier'] ?? '';
+    $contrasenya = $_POST['password'] ?? '';
 
-    // Usuari i contrasenya correctes (exemple fix)
-    $usuari_correcte = "admin";
-    $contrasenya_correcta = "1234";
-
-    // Comprovació
-    if ($username === $usuari_correcte && $password === $contrasenya_correcta) {
-        // Si són correctes, desm l'usuari a la sessió i redirigim
-        $_SESSION['loggedin'] = true;   // IMPORTANT per al control d'accés
-        $_SESSION['username'] = $username;
-
-        header("Location: dashboard.php");
-        exit();
+    if (empty($login_identifier) || empty($contrasenya)) {
+        set_flash_message('error', 'Has d\'introduir usuari/correu i contrasenya.');
     } else {
-        // Si són incorrectes, mostrem un missatge
-        echo "<p style='color:red;'>Usuari o contrasenya incorrectes!</p>";
+        // Validació de caràcters permesos
+        $es_email = str_contains($login_identifier, '@');
+        $valid = false;
+        if ($es_email) {
+            // Si sembla un email, el validem com a tal
+            if (filter_var($login_identifier, FILTER_VALIDATE_EMAIL)) {
+                $valid = true;
+            }
+        } else {
+            // Si no, el validem com a nom d'usuari
+            if (preg_match('/^[a-zA-Z0-9_]+$/', $login_identifier)) {
+                $valid = true;
+            }
+        }
+
+        if (!$valid) {
+            set_flash_message('error', 'El format de l\'usuari o correu no és vàlid.');
+        } else {
+            // Validació amb la base de dades.
+            // La funció retorna el nom d'usuari si l'autenticació és correcta.
+            $nom_usuari_validat = verificarUsuari($dbConnection, $login_identifier, $contrasenya);
+            
+            if ($nom_usuari_validat) {
+                // Inicia la sessió de l'usuari.
+                $_SESSION['loggedin'] = true;
+                $_SESSION['username'] = $nom_usuari_validat; // Guardem el nom d'usuari real.
+
+                // Redirecció al dashboard.
+                header("Location: dashboard.php");
+                exit();
+            } else {
+                // Missatge d'error.
+                set_flash_message('error', 'L\'usuari/correu o la contrasenya són incorrectes.');
+            }
+        }
     }
 }
 
+// Carrega la vista del login.
 require_once __DIR__ . '/../views/login.view.php';
 ?>
+

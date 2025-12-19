@@ -7,12 +7,19 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="register-container">
-        <h1 class="titol-register">Crea un Compte</h1>
-        <form action="/public/register.php" method="post">
+    <div class="form-container">
+        <h1>Crea un Compte</h1>
+        
+        <?php require_once __DIR__ . '/partials/show_messages.php'; ?>
+
+        <form action="register.php" method="post">
             <div class="form-group">
                 <label for="username">Nom d'usuari:</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" pattern="[a-zA-Z0-9_]+" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Correu electrònic:</label>
+                <input type="email" id="email" name="email" required>
             </div>
             <div class="form-group">
                 <label for="password">Contrasenya:</label>
@@ -25,7 +32,7 @@
             <button type="submit">Registra't</button>
         </form>
         <div class="login-section">
-            <p>Ja tens un compte? <a href="/public/login.php">Inicia sessió</a></p>
+            <p>Ja tens un compte? <a href="login.php">Inicia sessió</a></p>
         </div>
     </div>
 </body>
