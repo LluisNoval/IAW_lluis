@@ -1,14 +1,3 @@
--- Esborra la base de dades si ja existeix per començar de zero.
-DROP DATABASE IF EXISTS projectefinal;
-
--- Crea la nova base de dades amb el joc de caràcters adequat.
-CREATE DATABASE projectefinal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- Selecciona la base de dades per a les operacions següents.
-USE projectefinal;
-
--- --------------------------------------------------------
-
 --
 -- Estructura de la taula `usuaris`
 --
@@ -21,7 +10,8 @@ CREATE TABLE `usuaris` (
   `data_registre` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `nom_usuari` (`nom_usuari`),
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Inserció de l'usuari administrador per defecte
@@ -58,6 +48,7 @@ INSERT INTO `categories` (`id`, `name`, `description`) VALUES
 CREATE TABLE `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `display_name` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `image_path` varchar(255) DEFAULT NULL,
   `category_id` int(11) DEFAULT NULL,
@@ -107,10 +98,46 @@ INSERT INTO `attributes` (`id`, `item_id`, `attribute_name`, `value`) VALUES
 (3, 1, 'State', 'Liquid'),
 (4, 2, 'State', 'Solid');
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de la taula `recipes`
+--
+CREATE TABLE `recipes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `recipe_json_id` varchar(255) NOT NULL,
+  `fabricator_item_id` int(11) NOT NULL,
+  `output_item_id` int(11) NOT NULL,
+  `output_item_quantity` decimal(10,2) NOT NULL,
+  `crafting_time` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `recipe_json_id` (`recipe_json_id`),
+  KEY `fabricator_item_id` (`fabricator_item_id`),
+  KEY `output_item_id` (`output_item_id`),
+  CONSTRAINT `recipes_ibfk_1` FOREIGN KEY (`fabricator_item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `recipes_ibfk_2` FOREIGN KEY (`output_item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de la taula `recipe_ingredients`
+--
+CREATE TABLE `recipe_ingredients` (
+  `recipe_id` int(11) NOT NULL,
+  `ingredient_item_id` int(11) NOT NULL,
+  `ingredient_quantity` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`recipe_id`,`ingredient_item_id`),
+  KEY `ingredient_item_id` (`ingredient_item_id`),
+  CONSTRAINT `recipe_ingredients_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `recipe_ingredients_ibfk_2` FOREIGN KEY (`ingredient_item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Configuració d'AUTO_INCREMENT per a les taules
 --
 ALTER TABLE `attributes` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 ALTER TABLE `categories` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 ALTER TABLE `items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-ALTER TABLE `usuaris` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `usuaris` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `recipes` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

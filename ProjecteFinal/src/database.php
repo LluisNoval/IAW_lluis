@@ -11,20 +11,48 @@ const DB_PASS = '';
 
 /**
  * Estableix la connexió amb la base de dades MySQLi.
+ * Si la base de dades o les taules no existeixen, les crea automàticament.
  * @return mysqli L'objecte de connexió.
  */
 function getMysqliConnection(): mysqli {
-    // Connexió a la base de dades.
-    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    // 1. Connexió inicial al servidor.
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS);
     if ($mysqli->connect_error) {
-        // En un entorn de producció, això s'hauria de registrar en un log.
-        // Per ara, aturem l'execució i mostrem l'error.
-        die("Error de connexió a la base de dades: " . $mysqli->connect_error);
+        die("Error de connexió al servidor MySQL: " . $mysqli->connect_error);
+    }
+
+    // 2. Crear la base de dades si no existeix.
+    $mysqli->query("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    
+    // 3. Seleccionar la base de dades.
+    $mysqli->select_db(DB_NAME);
+
+    // 4. Comprovar si la taula 'usuaris' existeix. Si no, executem el .sql sencer.
+    $tables_exist = $mysqli->query("SHOW TABLES LIKE 'usuaris'")->num_rows > 0;
+
+    if (!$tables_exist) {
+        // La BD existeix però està buida, així que executem l'script per crear les taules.
+        $sql_file = __DIR__ . '/../database.sql';
+        if (!file_exists($sql_file)) {
+            die("Error crític: No s'ha trobat el fitxer 'database.sql' per crear les taules.");
+        }
+
+        $sql_commands = file_get_contents($sql_file);
+        
+        if ($mysqli->multi_query($sql_commands)) {
+            // Buidem els resultats de multi_query abans de continuar.
+            while ($mysqli->more_results() && $mysqli->next_result()) {
+                if ($result = $mysqli->store_result()) {
+                    $result->free();
+                }
+            }
+        } else {
+            die("Error en executar el fitxer database.sql: " . $mysqli->error);
+        }
     }
     
-    // Assegura que la connexió utilitzi UTF-8.
+    // 5. Assegurar que la connexió utilitzi UTF-8 i retornar-la.
     $mysqli->set_charset('utf8mb4');
-
     return $mysqli;
 }
 
