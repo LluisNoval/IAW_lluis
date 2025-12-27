@@ -31,16 +31,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             set_flash_message('error', 'El format de l\'usuari o correu no és vàlid.');
         } else {
             // Validació amb la base de dades.
-            // La funció retorna el nom d'usuari si l'autenticació és correcta.
-            $nom_usuari_validat = verificarUsuari($dbConnection, $login_identifier, $contrasenya);
+            // La funció retorna un array amb dades de l'usuari si l'autenticació és correcta.
+            $dades_usuari = verificarUsuari($dbConnection, $login_identifier, $contrasenya);
             
-            if ($nom_usuari_validat) {
+            if ($dades_usuari) {
                 // Inicia la sessió de l'usuari.
                 $_SESSION['loggedin'] = true;
-                $_SESSION['username'] = $nom_usuari_validat; // Guardem el nom d'usuari real.
+                $_SESSION['username'] = $dades_usuari['nom_usuari'];
+                $_SESSION['rol'] = $dades_usuari['rol'];
 
-                // Redirecció al dashboard.
-                header("Location: dashboard.php");
+                // Redirecció a la pàgina d'ítems.
+                header("Location: items.php");
                 exit();
             } else {
                 // Missatge d'error.

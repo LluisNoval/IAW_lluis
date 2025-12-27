@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <?php require_once __DIR__ . '/partials/header.php'; ?>
     <div class="form-container">
         <h1>Login</h1>
 
@@ -25,6 +26,10 @@
         </form>
         <div class="register-section">
             <p>No tens un compte? <a href="register.php">Crea un compte</a></p>
+        </div>
+        <div class="general-accounts" style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px; text-align: center;">
+            <h3 style="margin-top:0;">Dades per a proves</h3>
+            <p style="margin: 5px 0;"><strong>Rol Admin:</strong><br>Usuari: admin<br>Contrasenya: admin1234</p>
         </div>
     </div>
 </body>

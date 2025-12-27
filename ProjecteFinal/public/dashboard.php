@@ -17,6 +17,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <title>Dashboard</title>
 </head>
 <body>
+    <?php require_once __DIR__ . '/../views/partials/header.php'; ?>
     <h1>Benvingut/da, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h1>
     
     <a href="logout.php">Tancar sessió</a>

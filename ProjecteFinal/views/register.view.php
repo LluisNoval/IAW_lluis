@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <?php require_once __DIR__ . '/partials/header.php'; ?>
     <div class="form-container">
         <h1>Crea un Compte</h1>
         

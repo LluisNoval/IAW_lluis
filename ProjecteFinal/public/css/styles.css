@@ -2,12 +2,6 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
     color: #343a40;
-
-    /* Centra el contingut a la pàgina */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
 }
 
@@ -18,7 +12,71 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(52, 58, 64, 0.1);
     width: 400px;
+    /* Centra el contenidor horitzontalment i afegeix marge superior/inferior */
+    margin: 5vh auto;
 }
+
+/* --- Nous estils per a la graella d'ítems --- */
+.item-grid {
+    display: grid;
+    /* Crea columnes que s'ajusten automàticament a l'espai disponible */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px; /* Espai entre les targetes */
+    padding: 20px 0;
+}
+
+.item-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.item-card img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain; /* Assegura que la imatge es vegi completa sense deformar-se */
+    margin-bottom: 10px;
+}
+
+.item-card span {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* --- Nous estils per a seccions col·lapsables --- */
+details {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+}
+summary {
+    padding: 15px;
+    font-size: 1.5em;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    background-color: #f7f7f7;
+    border-radius: 8px 8px 0 0;
+}
+summary:hover {
+    background-color: #efefef;
+}
+
+
 
 .form-container h1 {
     text-align: center;
