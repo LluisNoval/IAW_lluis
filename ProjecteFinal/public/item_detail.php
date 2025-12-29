@@ -1,7 +1,7 @@
 <?php
-// public/item_detail.php
-
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../src/database.php';
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -16,7 +16,7 @@ if (!$item_id) {
 }
 
 // 1. Dades principals de l'ítem
-$stmt = $dbConnection->prepare("SELECT i.id, i.name, i.display_name, i.description, i.image_path, c.name AS category_name FROM items i LEFT JOIN categories c ON i.category_id = c.id WHERE i.id = ?");
+$stmt = $dbConnection->prepare("SELECT i.id, i.game_id, i.display_name, i.description, c.name AS category_name, i.image_path FROM items i LEFT JOIN categories c ON i.category_id = c.id WHERE i.id = ?");
 $stmt->bind_param('i', $item_id);
 $stmt->execute();
 $item = $stmt->get_result()->fetch_assoc();
@@ -27,50 +27,87 @@ if (!$item) {
     exit();
 }
 
+
+
 // 2. Atributs de l'ítem
-$attr_stmt = $dbConnection->prepare("SELECT attribute_name, value FROM attributes WHERE item_id = ? ORDER BY attribute_name ASC");
+$attr_stmt = $dbConnection->prepare("SELECT attr_key, attr_value FROM attributes WHERE item_id = ? ORDER BY attr_key ASC");
 $attr_stmt->bind_param('i', $item_id);
 $attr_stmt->execute();
 $attributes = $attr_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $attr_stmt->close();
 
-// 3. Recepta QUE PRODUEIX aquest ítem
-// ... (la lògica de receptes es manté igual) ...
+// 3. Tags de l'ítem
+$tags_stmt = $dbConnection->prepare(
+    "SELECT t.tag FROM item_tags it JOIN tags t ON it.tag_id = t.id WHERE it.item_id = ? ORDER BY t.tag ASC"
+);
+$tags_stmt->bind_param('i', $item_id);
+$tags_stmt->execute();
+$item_tags = $tags_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$tags_stmt->close();
+
+// Dades específiques de la categoria
+$category_details = [];
+if ($item['category_name'] === 'Guèisers') {
+    $cat_stmt = $dbConnection->prepare("SELECT * FROM geyser_data WHERE item_id = ?");
+    $cat_stmt->bind_param('i', $item_id);
+    $cat_stmt->execute();
+    $category_details = $cat_stmt->get_result()->fetch_assoc();
+    $cat_stmt->close();
+} elseif ($item['category_name'] === 'Plantes') {
+    $cat_stmt = $dbConnection->prepare("SELECT * FROM plant_data WHERE item_id = ?");
+    $cat_stmt->bind_param('i', $item_id);
+    $cat_stmt->execute();
+    $category_details = $cat_stmt->get_result()->fetch_assoc();
+    $cat_stmt->close();
+} elseif ($item['category_name'] === 'Criatures') {
+    $cat_stmt = $dbConnection->prepare("SELECT * FROM creature_data WHERE item_id = ?");
+    $cat_stmt->bind_param('i', $item_id);
+    $cat_stmt->execute();
+    $category_details = $cat_stmt->get_result()->fetch_assoc();
+    $cat_stmt->close();
+}
+
+
+
+// 4. Recepta QUE PRODUEIX aquest ítem
 $recipe_produces_this = null;
 $recipe_ingredients = [];
 $prod_stmt = $dbConnection->prepare(
-    "SELECT r.id, r.crafting_time, fab.id as fabricator_id, fab.display_name as fabricator_name 
+    "SELECT r.id, r.display_name AS recipe_name, r.time_seconds AS crafting_time,
+            fab.id AS fabricator_id, fab.display_name AS fabricator_name
      FROM recipes r
-     JOIN items fab ON r.fabricator_item_id = fab.id
-     WHERE r.output_item_id = ?"
+     JOIN recipe_ingredients ri ON r.id = ri.recipe_id
+     LEFT JOIN items fab ON r.building_item_id = fab.id
+     WHERE ri.item_id = ? AND ri.direction = 'output' LIMIT 1"
 );
 $prod_stmt->bind_param('i', $item_id);
 $prod_stmt->execute();
 $recipe_produces_this = $prod_stmt->get_result()->fetch_assoc();
 $prod_stmt->close();
 
-if ($recipe_produces_this) {
-    $ing_stmt = $dbConnection->prepare(
-        "SELECT ri.ingredient_quantity, i.display_name as ingredient_display_name, i.id as ingredient_id
-         FROM recipe_ingredients ri
-         JOIN items i ON ri.ingredient_item_id = i.id
-         WHERE ri.recipe_id = ?"
-    );
-    $ing_stmt->bind_param('i', $recipe_produces_this['id']);
-    $ing_stmt->execute();
-    $recipe_ingredients = $ing_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    $ing_stmt->close();
-}
 
-// 4. Receptes ON S'UTILITZA aquest ítem com a ingredient
-// ... (la lògica de receptes es manté igual) ...
+    if ($recipe_produces_this) {
+        $ing_stmt = $dbConnection->prepare(
+            "SELECT ri.amount AS ingredient_quantity, i.display_name AS ingredient_display_name, i.id AS ingredient_id
+             FROM recipe_ingredients ri
+             JOIN items i ON ri.item_id = i.id
+             WHERE ri.recipe_id = ? AND ri.direction = 'input'"
+        );
+        $ing_stmt->bind_param('i', $recipe_produces_this['id']);
+        $ing_stmt->execute();
+        $recipe_ingredients = $ing_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $ing_stmt->close();
+    }
+// 5. Receptes ON S'UTILITZA aquest ítem com a ingredient
 $uses_stmt = $dbConnection->prepare(
-    "SELECT r.output_item_id, i.display_name as output_display_name 
+    "SELECT r.id AS recipe_id, r.display_name AS recipe_display_name,
+            out_item.id AS output_item_id, out_item.display_name AS output_display_name
      FROM recipe_ingredients ri
      JOIN recipes r ON ri.recipe_id = r.id
-     JOIN items i ON r.output_item_id = i.id
-     WHERE ri.ingredient_item_id = ?
-     GROUP BY r.output_item_id, i.display_name"
+     JOIN recipe_ingredients ri_output ON r.id = ri_output.recipe_id
+     JOIN items out_item ON ri_output.item_id = out_item.id
+     WHERE ri.item_id = ? AND ri.direction = 'input' AND ri_output.direction = 'output'
+     GROUP BY r.id, r.display_name, out_item.id, out_item.display_name"
 );
 $uses_stmt->bind_param('i', $item_id);
 $uses_stmt->execute();
@@ -78,17 +115,17 @@ $recipes_uses_this = $uses_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $uses_stmt->close();
 
 
-// 5. NOU: Lògica per a navegació Anterior/Següent
+// 6. Lògica per a navegació Anterior/Següent
 $current_category_name = $item['category_name'];
-$current_item_name = $item['name'];
+$current_item_name = $item['game_id'];
 
 // Trobar ítem ANTERIOR
 $prev_stmt = $dbConnection->prepare(
     "SELECT i.id FROM items i JOIN categories c ON i.category_id = c.id 
-     WHERE (c.name < ? OR (c.name = ? AND i.name < ?)) 
-     ORDER BY c.name DESC, i.name DESC LIMIT 1"
+     WHERE (c.name < ? OR (c.name = ? AND i.game_id < ?)) 
+     ORDER BY c.name DESC, i.game_id DESC LIMIT 1"
 );
-$prev_stmt->bind_param('sss', $current_category_name, $current_category_name, $current_item_name);
+$prev_stmt->bind_param('sss', $current_category_name, $current_category_name, $item['game_id']);
 $prev_stmt->execute();
 $prev_item = $prev_stmt->get_result()->fetch_assoc();
 $prev_stmt->close();
@@ -97,10 +134,10 @@ $prev_id = $prev_item['id'] ?? null;
 // Trobar ítem SEGÜENT
 $next_stmt = $dbConnection->prepare(
     "SELECT i.id FROM items i JOIN categories c ON i.category_id = c.id 
-     WHERE (c.name > ? OR (c.name = ? AND i.name > ?)) 
-     ORDER BY c.name ASC, i.name ASC LIMIT 1"
+     WHERE (c.name > ? OR (c.name = ? AND i.game_id > ?)) 
+     ORDER BY c.name ASC, i.game_id ASC LIMIT 1"
 );
-$next_stmt->bind_param('sss', $current_category_name, $current_category_name, $current_item_name);
+$next_stmt->bind_param('sss', $current_category_name, $current_category_name, $item['game_id']);
 $next_stmt->execute();
 $next_item = $next_stmt->get_result()->fetch_assoc();
 $next_stmt->close();
@@ -131,13 +168,14 @@ $dbConnection->close();
         .recipe-list a { text-decoration: none; color: #0056b3; font-weight: bold; }
         .recipe-list a:hover { text-decoration: underline; }
         .recipe-list .fabricator { font-style: italic; }
-        .back-link { display: inline-block; margin-top: 30px; text-decoration: none; background-color: #6c757d; color: white; padding: 10px 15px; border-radius: 5px; }
-        .back-link:hover { background-color: #5a6268; }
-        /* Nous estils per a la navegació */
         .item-navigation { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .nav-button { padding: 10px 20px; text-decoration: none; background-color: #007bff; color: white; border-radius: 5px; }
         .nav-button:hover { background-color: #0056b3; }
         .nav-button.disabled { background-color: #ccc; cursor: not-allowed; pointer-events: none; }
+        .tags-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin-top: 10px;}
+        .tags-list li { background-color: #e2f0ff; color: #0056b3; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; border: 1px solid #b3d9ff; }
+        .back-link { display: inline-block; margin-top: 30px; text-decoration: none; background-color: #6c757d; color: white; padding: 10px 15px; border-radius: 5px; }
+        .back-link:hover { background-color: #5a6268; }
     </style>
 </head>
 <body>
@@ -159,7 +197,13 @@ $dbConnection->close();
             </div>
 
             <div class="detail-header">
-                <img src="../<?php echo htmlspecialchars($item['image_path']); ?>" alt="<?php echo htmlspecialchars($item['display_name']); ?>">
+                                <?php
+                if (!empty($item['image_path']) && file_exists(__DIR__ . '/../' . $item['image_path'])) {
+                    echo '<img src="../' . htmlspecialchars($item['image_path']) . '" alt="' . htmlspecialchars($item['display_name']) . '">';
+                } else {
+                    echo '<img src="https://via.placeholder.com/150" alt="Imatge no disponible">';
+                }
+                ?>
                 <div class="detail-header-info">
                     <h1><?php echo htmlspecialchars($item['display_name']); ?></h1>
                     <span class="category"><?php echo htmlspecialchars($item['category_name']); ?></span>
@@ -172,12 +216,46 @@ $dbConnection->close();
                     <p><?php echo htmlspecialchars($item['description']); ?></p>
                 <?php endif; ?>
                 
+                <?php if (!empty($item_tags)): ?>
+                    <h3>Etiquetes</h3>
+                    <ul class="tags-list">
+                        <?php foreach ($item_tags as $tag): ?>
+                            <li><?php echo htmlspecialchars($tag['tag']); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+
                 <?php if (!empty($attributes)): ?>
                     <h3>Atributs</h3>
                     <ul class="attributes-list">
                         <?php foreach ($attributes as $attr): ?>
-                            <li><strong><?php echo htmlspecialchars($attr['attribute_name']); ?>:</strong> <span><?php echo htmlspecialchars($attr['value']); ?></span></li>
+                            <li><strong><?php echo htmlspecialchars($attr['attr_key']); ?>:</strong> <span><?php echo htmlspecialchars($attr['attr_value']); ?></span></li>
                         <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+
+                <?php if (!empty($category_details)): ?>
+                    <h3>Detalls Específics</h3>
+                    <ul class="attributes-list">
+                        <?php if ($item['category_name'] === 'Guèisers'): ?>
+                            <li><strong>Element Emès:</strong> <span><?php echo htmlspecialchars($category_details['emitted_name']); ?></span></li>
+                            <li><strong>Temperatura:</strong> <span><?php echo round($category_details['temperature_c'], 2); ?> °C</span></li>
+                            <li><strong>Producció Mitjana:</strong> <span><?php echo round($category_details['avg_output_kg_cycle'], 2); ?> kg/cicle</span></li>
+                            <li><strong>Activitat:</strong> <span><?php echo round($category_details['activity_percent'], 2); ?> %</span></li>
+                        <?php elseif ($item['category_name'] === 'Plantes'): ?>
+                            <li><strong>Temperatura Mínima:</strong> <span><?php echo round($category_details['temperature_min_c'], 2); ?> °C</span></li>
+                            <li><strong>Temperatura Màxima:</strong> <span><?php echo round($category_details['temperature_max_c'], 2); ?> °C</span></li>
+                            <?php if ($category_details['irrigation_rate_kg_per_cycle']): ?>
+                                <li><strong>Necessitat de Reg:</strong> <span><?php echo round($category_details['irrigation_rate_kg_per_cycle'], 2); ?> kg/cicle</span></li>
+                            <?php endif; ?>
+                        <?php elseif ($item['category_name'] === 'Criatures'): ?>
+                            <?php if(isset($category_details['temperature_min_c'])): ?>
+                                <li><strong>Temperatura Mínima:</strong> <span><?php echo round($category_details['temperature_min_c'], 2); ?> °C</span></li>
+                            <?php endif; ?>
+                            <?php if(isset($category_details['temperature_max_c'])): ?>
+                                <li><strong>Temperatura Màxima:</strong> <span><?php echo round($category_details['temperature_max_c'], 2); ?> °C</span></li>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </ul>
                 <?php endif; ?>
 

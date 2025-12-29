@@ -1,12 +1,20 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Data passada per assegurar-se que expira immediatament
 
 // Controlador de registre.
-session_start();
 require_once __DIR__ . '/../src/database.php';
 require_once __DIR__ . '/../src/flash_messages.php';
+
+// Si l'usuari ja ha iniciat sessió, el redirigim a logout per forçar un tancament de sessió abans de veure el registre.
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    header("Location: logout.php?redirect_to=" . urlencode("register.php"));
+    exit();
+}
 
 // Comprova si s'ha enviat el formulari.
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

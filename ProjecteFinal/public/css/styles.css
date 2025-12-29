@@ -1,130 +1,56 @@
+/* CSS Minimalista - La base la fas tu! */
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-    color: #343a40;
-    margin: 0;
+    font-family: sans-serif;
+    margin: 20px;
 }
 
-/* Contenidor principal per als formularis */
-.form-container {
-    background-color: #ffffff;
-    padding: 30px 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(52, 58, 64, 0.1);
-    width: 400px;
-    /* Centra el contenidor horitzontalment i afegeix marge superior/inferior */
-    margin: 5vh auto;
-}
-
-/* --- Nous estils per a la graella d'ítems --- */
-.item-grid {
-    display: grid;
-    /* Crea columnes que s'ajusten automàticament a l'espai disponible */
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 20px; /* Espai entre les targetes */
-    padding: 20px 0;
-}
-
-.item-card {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Estils bàsics per a les targetes de comanda */
+.card {
+    border: 2px solid #ccc;
     padding: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.item-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.item-card img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain; /* Assegura que la imatge es vegi completa sense deformar-se */
-    margin-bottom: 10px;
-}
-
-.item-card span {
-    font-weight: bold;
-    text-align: center;
-}
-
-/* --- Nous estils per a seccions col·lapsables --- */
-details {
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fdfdfd;
-}
-summary {
-    padding: 15px;
-    font-size: 1.5em;
-    font-weight: bold;
-    cursor: pointer;
-    outline: none;
-    background-color: #f7f7f7;
-    border-radius: 8px 8px 0 0;
-}
-summary:hover {
-    background-color: #efefef;
-}
-
-
-
-.form-container h1 {
-    text-align: center;
     margin-bottom: 20px;
+    border-radius: 8px;
 }
 
-.form-container form {
-    display: flex;
-    flex-direction: column;
+/* Colors segons l'estat de la comanda */
+.status-pendent {
+    background-color: #fff4e5;
+    color: #b7791f;
+    border: 1px solid #fbd38d;
 }
 
-.form-group {
-    margin-bottom: 15px;
+.status-en_preparacio {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #90caf9;
 }
 
-.form-group label {
-    margin-bottom: 5px;
-    font-weight: bold;
+.status-llest {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
 }
 
-.form-group input {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 95%;
-}
+/* Badges petits per a Vegà / Sense Gluten */
+.badge-vega { color: green; font-weight: bold; }
+.badge-gluten { color: orange; font-weight: bold; }
 
-.register-section, .login-section, .general-accounts {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.general-accounts h3 {
-    margin-bottom: 10px;
-}
-
-button {
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    padding: 12px;
-    border-radius: 5px;
+/* Botons bàsics perquè puguis interactuar */
+button, .btn {
+    padding: 10px 15px;
     cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
-    font-size: 16px;
 }
 
-button:hover {
-    background-color: #0056b3;
+.btn-primary { background: #e67e22; color: white; border: none; }
+.btn-success { background: #27ae60; color: white; border: none; }
+
+/* Taules senzilles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
 }

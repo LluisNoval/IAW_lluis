@@ -1,0 +1,1 @@
+Canvi d'idea, fer una apgina on els clients puguin fer comandes de menjar i veure el progres.

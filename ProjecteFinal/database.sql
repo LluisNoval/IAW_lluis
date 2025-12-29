@@ -1,143 +1,129 @@
---
--- Estructura de la taula `usuaris`
---
+-- database.sql
+-- Esquema per a MySQL/MariaDB compatible amb XAMPP
+
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `detalls_comanda`;
+DROP TABLE IF EXISTS `comandes`;
+DROP TABLE IF EXISTS `plats`;
+DROP TABLE IF EXISTS `categories`;
+DROP TABLE IF EXISTS `usuaris`;
+DROP TABLE IF EXISTS `roles`;
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- 1) Taula de Rols
+CREATE TABLE `roles` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(50) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `roles` (`name`) VALUES ('client'), ('cuiner'), ('admin');
+
+-- 2) Taula d'Usuaris
 CREATE TABLE `usuaris` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nom_usuari` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `contrasenya` varchar(255) NOT NULL,
-  `rol` varchar(50) NOT NULL DEFAULT 'usuari',
-  `data_registre` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `nom_usuari` (`nom_usuari`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `nom` VARCHAR(120) NOT NULL,
+  `email` VARCHAR(255) NOT NULL UNIQUE,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `role_id` INT NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Inserció de l'usuari administrador per defecte
---
-INSERT INTO `usuaris` (`nom_usuari`, `email`, `contrasenya`, `rol`) VALUES
-('admin', 'admin@gmail.com', '$2y$10$Z22OpmkhDrHkWZTVV1NRAO6Szm.UHYTscAc.F6vEjdBBBsUCcVRFS', 'admin');
-
--- --------------------------------------------------------
-
---
--- Estructura de la taula `categories`
---
+-- 3) Taula de Categories de Menjar
 CREATE TABLE `categories` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `nom` VARCHAR(100) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Inserció de dades d'exemple per a `categories`
---
-INSERT INTO `categories` (`id`, `name`, `description`) VALUES
-(1, 'Elements', 'Substàncies bàsiques, gasos, líquids i sòlids.'),
-(2, 'Edificis', 'Estructures construïbles pels duplicants.'),
-(3, 'Aliments', 'Recursos comestibles per a la supervivència.');
+-- 4) Taula de Plats (Menjar)
+CREATE TABLE `plats` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `categoria_id` INT NOT NULL,
+  `nom` VARCHAR(160) NOT NULL,
+  `descripcio` TEXT,
+  `preu` DECIMAL(10,2) NOT NULL,
+  `imatge_url` VARCHAR(255),
+  `disponible` BOOLEAN DEFAULT TRUE,
+  FOREIGN KEY (`categoria_id`) REFERENCES `categories`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- --------------------------------------------------------
+-- 5) Taula de Comandes
+CREATE TABLE `comandes` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `usuari_id` INT NOT NULL,
+  `cuiner_id` INT DEFAULT NULL,
+  `estat` ENUM('pendent', 'en_preparacio', 'llest', 'entregat') DEFAULT 'pendent',
+  `total` DECIMAL(10,2) DEFAULT 0.00,
+  `notes` TEXT,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`usuari_id`) REFERENCES `usuaris`(`id`),
+  FOREIGN KEY (`cuiner_id`) REFERENCES `usuaris`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Estructura de la taula `items`
---
-CREATE TABLE `items` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `display_name` varchar(255) DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `image_path` varchar(255) DEFAULT NULL,
-  `category_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `category_id` (`category_id`),
-  CONSTRAINT `items_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- 6) Taula de Detalls de la Comanda
+CREATE TABLE `detalls_comanda` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `comanda_id` INT NOT NULL,
+  `plat_id` INT NOT NULL,
+  `quantitat` INT NOT NULL DEFAULT 1,
+  `preu_unitari` DECIMAL(10,2) NOT NULL,
+  `es_vega` BOOLEAN DEFAULT FALSE,
+  `sense_gluten` BOOLEAN DEFAULT FALSE,
+  `comentaris` TEXT,
+  FOREIGN KEY (`comanda_id`) REFERENCES `comandes`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`plat_id`) REFERENCES `plats`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Inserció de dades d'exemple per a `items`
---
-INSERT INTO `items` (`id`, `name`, `description`, `image_path`, `category_id`) VALUES
-(1, 'Water', 'Un líquid transparent i essencial per a la vida. Necessari per beure, per a la recerca i per a l''electròlisi.', 'export/ui_image/Water.png', 1),
-(2, 'Algae', 'Un organisme simple que produeix oxigen quan es col·loca en un difusor. Font primària d''aire respirable al principi.', 'export/ui_image/Algae.png', 1),
-(3, 'Copper', 'Un metall tou i conductor. S''utilitza per construir cables elèctrics bàsics i altres edificis inicials.', 'export/ui_image/Copper.png', 1),
-(4, 'Sand', 'Material granular utilitzat principalment per a la filtració i la producció de vidre.', 'export/ui_image/Sand.png', 1),
-(5, 'Outhouse', 'Un lavabo bàsic. No requereix aigua però produeix terra contaminada i malestar.', 'export/ui_image/Outhouse.png', 2),
-(6, 'Manual Generator', 'Una roda de hàmster per a duplicants. Genera una petita quantitat d''energia quan un duplicant hi corre.', 'export/ui_image/ManualGenerator.png', 2),
-(7, 'Microbe Musher', 'Permet crear aliments de baixa qualitat com el "Mush Bar" a partir de fang i aigua.', 'export/ui_image/MicrobeMusher.png', 2),
-(8, 'Ration Box', 'Caixa d''emmagatzematge bàsica per a aliments. No refrigera.', 'export/ui_image/RationBox.png', 2),
-(9, 'Mush Bar', 'Una barra alimentària poc apetitosa però funcional. Proporciona calories però redueix la moral.', 'export/ui_image/MushBar.png', 3),
-(10, 'Mealwood', 'Una planta fàcil de cultivar que produeix "Meal Lice", un aliment bàsic per als duplicants.', 'export/ui_image/BasicPlantFood.png', 3),
-(11, 'Oxygen Diffuser', 'Una màquina que converteix les algues en oxigen. Essencial per a la supervivència primerenca.', 'export/ui_image/MineralDeoxidizer.png', 2);
+-- ==========================================
+-- INSERCIÓ DE DADES INICIALS
+-- ==========================================
 
--- --------------------------------------------------------
+-- Inserir l'usuari administrador (contrasenya: admin1234)
+INSERT INTO `usuaris` (`nom`, `email`, `password_hash`, `role_id`) VALUES 
+('admin', 'admin@gmail.com', '$2y$10$a8uepG6Tr4gv0olSmLJ2oO.neSuhSEv43h3V8RfwnYG2dhFl8SfyS', 3);
 
---
--- Estructura de la taula `attributes`
---
-CREATE TABLE `attributes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `item_id` int(11) NOT NULL,
-  `attribute_name` varchar(100) NOT NULL,
-  `value` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `item_id` (`item_id`),
-  CONSTRAINT `attributes_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Inserir cuiners de prova
+INSERT INTO `usuaris` (`nom`, `email`, `password_hash`, `role_id`) VALUES 
+('Ferran', 'ferran@gmail.com', '$2y$10$24ApQB13f2Brq2g5JDYysupG9knKw5giF9Jd2zn9T6NFhDYOSyf4S', 2),
+('Carme', 'carme@gmail.com', '$2y$10$24ApQB13f2Brq2g5JDYysupG9knKw5giF9Jd2zn9T6NFhDYOSyf4S', 2);
 
---
--- Inserció de dades d'exemple per a `attributes`
---
-INSERT INTO `attributes` (`id`, `item_id`, `attribute_name`, `value`) VALUES
-(1, 6, 'Power Output', '400 W'),
-(2, 7, 'Requires Power', '60 W'),
-(3, 1, 'State', 'Liquid'),
-(4, 2, 'State', 'Solid');
+-- Inserir un usuari client de prova
+INSERT INTO `usuaris` (`id`, `nom`, `email`, `password_hash`, `role_id`) VALUES 
+(4, 'Joan Prova', 'joan@gmail.com', '$2y$10$a8uepG6Tr4gv0olSmLJ2oO.neSuhSEv43h3V8RfwnYG2dhFl8SfyS', 1);
 
--- --------------------------------------------------------
+-- Inserir categories
+INSERT INTO `categories` (`nom`) VALUES ('Primers'), ('Segons'), ('Postres'), ('Begudes');
 
---
--- Estructura de la taula `recipes`
---
-CREATE TABLE `recipes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `recipe_json_id` varchar(255) NOT NULL,
-  `fabricator_item_id` int(11) NOT NULL,
-  `output_item_id` int(11) NOT NULL,
-  `output_item_quantity` decimal(10,2) NOT NULL,
-  `crafting_time` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `recipe_json_id` (`recipe_json_id`),
-  KEY `fabricator_item_id` (`fabricator_item_id`),
-  KEY `output_item_id` (`output_item_id`),
-  CONSTRAINT `recipes_ibfk_1` FOREIGN KEY (`fabricator_item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `recipes_ibfk_2` FOREIGN KEY (`output_item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Inserir plats
+INSERT INTO `plats` (`id`, `categoria_id`, `nom`, `descripcio`, `preu`) VALUES 
+(1, 1, 'Amanida Verda', 'Enciam, tomàquet, ceba i olives', 6.50),
+(2, 1, 'Sopa de Galets', 'Sopa tradicional catalana', 7.20),
+(3, 2, 'Botifarra amb mongetes', 'Botifarra de pagès a la brasa', 12.50),
+(4, 2, 'Paella Marinera', 'Arròs amb marisc fresc', 18.00),
+(5, 3, 'Crema Catalana', 'Postres típiques amb sucre cremat', 4.50);
 
--- --------------------------------------------------------
+-- Inserir comandes de prova
+-- Comanda 1: Només vegà i sense gluten
+INSERT INTO `comandes` (`id`, `usuari_id`, `estat`, `total`, `notes`) VALUES (1, 4, 'pendent', 6.50, 'Volen la comanda ràpid');
+INSERT INTO `detalls_comanda` (`comanda_id`, `plat_id`, `quantitat`, `preu_unitari`, `es_vega`, `sense_gluten`, `comentaris`) 
+VALUES (1, 1, 1, 6.50, 1, 1, 'Molt important: Sense traces de gluten');
 
---
--- Estructura de la taula `recipe_ingredients`
---
-CREATE TABLE `recipe_ingredients` (
-  `recipe_id` int(11) NOT NULL,
-  `ingredient_item_id` int(11) NOT NULL,
-  `ingredient_quantity` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`recipe_id`,`ingredient_item_id`),
-  KEY `ingredient_item_id` (`ingredient_item_id`),
-  CONSTRAINT `recipe_ingredients_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `recipe_ingredients_ibfk_2` FOREIGN KEY (`ingredient_item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Comanda 2: Només vegà
+INSERT INTO `comandes` (`id`, `usuari_id`, `estat`, `total`, `notes`) VALUES (2, 4, 'en_preparacio', 7.20, 'Sopa ben calenta');
+INSERT INTO `detalls_comanda` (`comanda_id`, `plat_id`, `quantitat`, `preu_unitari`, `es_vega`, `sense_gluten`, `comentaris`) 
+VALUES (2, 2, 1, 7.20, 1, 0, 'Sopa de galets vegetal');
 
---
--- Configuració d'AUTO_INCREMENT per a les taules
---
-ALTER TABLE `attributes` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-ALTER TABLE `categories` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-ALTER TABLE `items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-ALTER TABLE `usuaris` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-ALTER TABLE `recipes` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- Comanda 3: Només sense gluten
+INSERT INTO `comandes` (`id`, `usuari_id`, `estat`, `total`, `notes`) VALUES (3, 4, 'llest', 18.00, '');
+INSERT INTO `detalls_comanda` (`comanda_id`, `plat_id`, `quantitat`, `preu_unitari`, `es_vega`, `sense_gluten`, `comentaris`) 
+VALUES (3, 4, 1, 18.00, 0, 1, 'Arros sense res de pa');
+
+-- Comanda 4: Mix de tot
+INSERT INTO `comandes` (`id`, `usuari_id`, `estat`, `total`) VALUES (4, 4, 'pendent', 23.50);
+INSERT INTO `detalls_comanda` (`comanda_id`, `plat_id`, `quantitat`, `preu_unitari`, `es_vega`, `sense_gluten`) 
+VALUES (4, 3, 1, 12.50, 0, 0); -- Botifarra normal
+INSERT INTO `detalls_comanda` (`comanda_id`, `plat_id`, `quantitat`, `preu_unitari`, `es_vega`, `sense_gluten`) 
+VALUES (4, 1, 1, 6.50, 1, 1);  -- Amanida V+SG
+INSERT INTO `detalls_comanda` (`comanda_id`, `plat_id`, `quantitat`, `preu_unitari`, `es_vega`, `sense_gluten`) 
+VALUES (4, 5, 1, 4.50, 0, 1);  -- Crema Catalana SG

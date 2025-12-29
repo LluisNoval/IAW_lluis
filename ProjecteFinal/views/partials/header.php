@@ -8,7 +8,9 @@ if (session_status() === PHP_SESSION_NONE) {
 ?>
 <header style="width: 100%; box-sizing: border-box; background-color: #f2f2f2; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
     <div>
-        <h1 style="margin: 0; font-size: 1.5em;">ONI DB</h1>
+        <a href="../index.php" style="text-decoration: none;">
+            <h1 style="margin: 0; font-size: 1.8rem; color: var(--primary); font-weight: 800; cursor: pointer;">CUINA</h1>
+        </a>
     </div>
     <div>
         <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
@@ -17,7 +19,16 @@ if (session_status() === PHP_SESSION_NONE) {
                 <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong> 
                 (Rol: <?php echo htmlspecialchars($_SESSION['rol']); ?>)
             </span>
-            <a href="items.php" style="margin-left: 15px;">Ítems</a>
+            <a href="dashboard.php" style="margin-left: 15px;">Dashboard</a>
+            <?php if ($_SESSION['rol'] === 'admin'): ?>
+                <a href="admin_users.php" style="margin-left: 15px;">Usuaris</a>
+            <?php endif; ?>
+            <?php if ($_SESSION['rol'] === 'admin' || $_SESSION['rol'] === 'cuiner'): ?>
+                <a href="comandes_globals.php" style="margin-left: 15px;">Comandes Globals</a>
+            <?php endif; ?>
+            <?php if ($_SESSION['rol'] === 'client'): ?>
+                <a href="menjar.php" style="margin-left: 15px;">Menú</a>
+            <?php endif; ?>
             <a href="logout.php" style="margin-left: 15px;">Tancar Sessió</a>
         <?php else: ?>
             <span>Benvingut/da a la plataforma</span>

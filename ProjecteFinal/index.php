@@ -1,4 +1,10 @@
 <?php
-// Punt d'entrada. Redirecció al controlador de login.
-header('Location: public/login.php');
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    header('Location: public/dashboard.php');
+} else {
+    header('Location: public/login.php');
+}
 exit();

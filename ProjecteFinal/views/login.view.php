@@ -27,9 +27,30 @@
         <div class="register-section">
             <p>No tens un compte? <a href="register.php">Crea un compte</a></p>
         </div>
-        <div class="general-accounts" style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px; text-align: center;">
-            <h3 style="margin-top:0;">Dades per a proves</h3>
-            <p style="margin: 5px 0;"><strong>Rol Admin:</strong><br>Usuari: admin<br>Contrasenya: admin1234</p>
+        <div class="general-accounts" style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9em;">
+            <h3 style="margin-top:0; text-align: center; color: #2c3e50;">Dades per a proves</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
+                    <strong>Administrador:</strong><br>
+                    Usuari: <code>admin</code><br>
+                    Pass: <code>admin1234</code>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
+                    <strong>Client de prova:</strong><br>
+                    Usuari: <code>joan@gmail.com</code><br>
+                    Pass: <code>admin1234</code>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
+                    <strong>Cuiner 1:</strong><br>
+                    Usuari: <code>Ferran</code><br>
+                    Pass: <code>cuiner1234</code>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
+                    <strong>Cuiner 2:</strong><br>
+                    Usuari: <code>Carme</code><br>
+                    Pass: <code>cuiner1234</code>
+                </div>
+            </div>
         </div>
     </div>
 </body>

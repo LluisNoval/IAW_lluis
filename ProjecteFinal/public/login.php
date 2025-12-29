@@ -1,8 +1,16 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 // Controlador de login.
-session_start();
 require_once __DIR__ . '/../src/database.php';
 require_once __DIR__ . '/../src/flash_messages.php';
+
+// Si l'usuari ja ha iniciat sessió, el redirigim a logout per forçar un tancament de sessió abans de veure el login.
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    header("Location: logout.php?redirect_to=" . urlencode("login.php"));
+    exit();
+}
 
 // Comprova l'enviament del formulari.
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -37,11 +45,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($dades_usuari) {
                 // Inicia la sessió de l'usuari.
                 $_SESSION['loggedin'] = true;
+                $_SESSION['user_id'] = $dades_usuari['id']; // Add user_id to session
                 $_SESSION['username'] = $dades_usuari['nom_usuari'];
                 $_SESSION['rol'] = $dades_usuari['rol'];
 
-                // Redirecció a la pàgina d'ítems.
-                header("Location: items.php");
+                // Redirecció al dashboard.
+                header("Location: dashboard.php");
                 exit();
             } else {
                 // Missatge d'error.
@@ -53,5 +62,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // Carrega la vista del login.
 require_once __DIR__ . '/../views/login.view.php';
-?>
-
