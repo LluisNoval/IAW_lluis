@@ -1,188 +1,323 @@
+/*
+ * VARIABLES GLOBALS
+ * Definició de colors i estils base per reutilitzar en tot el projecte.
+ */
 :root {
-    --primary: #e67e22; /* Taronja suau */
-    --primary-hover: #d35400;
-    --secondary: #2c3e50; /* Blau fosc / Gris */
-    --bg-color: #f8f9fa;
-    --text-color: #333;
-    --border-color: #ddd;
-    --white: #ffffff;
-    --shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --color-pendent: #e74c3c; /* Vermell - Estat pendent d'acceptar */
+    --color-preparacio: #e67e22; /* Taronja - Estat en preparació */
+    --color-llest: #3498db; /* Blau - Estat llest per recollir */
+    --color-entregat: #27ae60; /* Verd - Estat entregat/completat */
+    
+    --bg-body: #f4f6f8; /* Color de fons general de la pàgina */
+    --text-main: #333;  /* Color de text principal */
+    --card-bg: #fff;    /* Fons blanc per a targetes i contenidors */
+    --shadow: 0 4px 6px rgba(0,0,0,0.1); /* Ombra suau per efecte de profunditat */
 }
 
-* {
-    box-sizing: border-box;
-}
-
+/*
+ * ESTILS GENERALS DEL BODY
+ * Reset bàsic de marges i tipografia.
+ */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
     margin: 0;
-    line-height: 1.6;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-body);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Assegura que el footer (si n'hi hagués) quedi avall */
 }
 
-/* Layout Generals */
+/*
+ * CONTENIDOR PRINCIPAL
+ * Centra el contingut i defineix l'amplada màxima.
+ */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-}
-
-.form-container {
-    max-width: 400px;
-    margin: 40px auto;
-    padding: 30px;
-    background: var(--white);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-}
-
-/* Encapçalaments */
-h1, h2, h3 {
-    color: var(--secondary);
-    margin-top: 0;
-}
-
-a {
-    color: var(--primary);
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
-}
-
-/* Graella del Menú */
-.menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.menu-item {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-}
-
-.menu-content {
-    padding: 20px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.menu-content h3 {
-    margin-bottom: 10px;
-    color: var(--secondary);
-}
-
-.menu-content .price {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: var(--primary);
-    margin: 10px 0;
-}
-
-/* Formularis i Inputs */
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-textarea,
-select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 1rem;
+    box-sizing: border-box;
 }
 
-input:focus, textarea:focus {
-    outline: none;
-    border-color: var(--primary);
+/*
+ * CAPÇALERA (HEADER)
+ * Estils per a la barra de navegació superior.
+ */
+header {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+header > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+header a {
+    color: inherit; /* Manté el color de l'enllaç igual que el text pare */
 }
 
-/* Botons */
-button, .btn, .btn-primary {
-    display: inline-block;
-    background-color: var(--primary);
-    color: var(--white);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    text-align: center;
-    transition: background 0.2s;
-}
-
-button:hover, .btn:hover, .btn-primary:hover {
-    background-color: var(--primary-hover);
-    text-decoration: none;
-}
-
-/* Badges i Estats */
-.badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    margin-right: 5px;
-    background-color: #eee;
-}
-
-.badge-vega { color: #27ae60; background: #e8f5e9; }
-.badge-gluten { color: #d35400; background: #fff3e0; }
-
-/* Cards generals */
-.card {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
+/*
+ * FORMULARIS D'ACCÉS (Login/Registre)
+ * Estil per centrar i emmarcar els formularis d'entrada.
+ */
+.form-container {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    margin: 40px auto;
+    border-radius: 12px;
     box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-container h1 {
+    text-align: center;
     margin-bottom: 20px;
 }
 
-/* Taules */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/*
+ * BOTONS
+ * Estil general per a tots els botons de l'aplicació.
+ */
+button, .btn {
+    width: 100%;
+    padding: 12px;
+    background: #34495e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    box-sizing: border-box;
+}
+button:hover, .btn:hover {
+    background: #2c3e50;
+}
+
+.text-center { text-align: center; }
+
+/*
+ * DASHBOARD I LLISTA DE COMANDES
+ * Layout principal del panell de control (llista + llegenda).
+ */
+.dashboard-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.orders-list {
+    flex: 3; /* Ocupa 3/4 de l'espai disponible */
+    min-width: 300px;
+}
+
+/* Barra lateral amb la llegenda de colors */
+.legend-sidebar {
+    flex: 1; /* Ocupa 1/4 de l'espai */
+    min-width: 250px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    height: fit-content;
+    position: sticky;
+    top: 20px; /* Es manté fixa al fer scroll */
+}
+
+/* Responsive: En mòbils, la llegenda passa a dalt o baix */
+@media (max-width: 768px) {
+    .dashboard-layout {
+        flex-direction: column-reverse; 
+    }
+    .legend-sidebar {
+        position: static;
+        width: 100%;
+        order: -1; /* Posa la llegenda primer per visibilitat */
+        margin-bottom: 20px;
+    }
+}
+
+/*
+ * TARGETES DE COMANDA
+ * Estil visual de cada comanda individual.
+ */
+.order-card {
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    color: white; /* Text blanc per defecte sobre fons de color */
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.order-card h3, .order-card strong, .order-card p {
+    margin: 5px 0;
+    color: inherit;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3); /* Millora llegibilitat sobre colors */
+}
+
+/*
+ * CLASSES DE COLOR PER ESTAT
+ * Apliquen els colors definits a :root segons l'estat de la comanda.
+ */
+.bg-pendent { background-color: var(--color-pendent); color: white; }
+.bg-en_preparacio { background-color: var(--color-preparacio); color: white; }
+.bg-llest { background-color: var(--color-llest); color: white; } 
+.bg-entregat { background-color: var(--color-entregat); color: white; } 
+
+/*
+ * ALERTA D'STOCK
+ * Estil pel text que avisa que falta algun ingredient.
+ */
+.text-danger-custom {
+    color: #ffcccc; /* Vermell clar per ressaltar sobre fons fosc */
+    font-weight: bold;
+    text-decoration: underline;
+}
+/* Si el fons és blanc (ex: llistes), usa vermell fosc */
+.bg-white .text-danger-custom {
+    color: red;
+}
+
+/*
+ * ITEMS DE LA LLEGENDA
+ * Petits quadres de color amb text explicatiu.
+ */
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 10px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/*
+ * MENU GRID (Plats per als clients)
+ * Layout en graella per als plats del menú.
+ */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive automàtic */
+    gap: 20px;
+}
+
+.menu-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px); /* Efecte hover */
+}
+
+.price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-main);
+    margin: 10px 0;
+}
+
+/* Etiquetes dietètiques (Vegà, Gluten...) */
+.dietary-tags {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.badge {
+    background: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/*
+ * TAULES (ADMINISTRACIÓ I STOCK)
+ * Estils generals per a taules de dades.
+ */
+.admin-table thead th {
+    background-color: var(--color-preparacio) !important; /* Capçalera taronja */
+    color: white;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-    background: var(--white);
-    box-shadow: var(--shadow);
+    margin-top: 10px;
+    background: white;
 }
-
 th, td {
-    padding: 12px 15px;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
 }
 
-th {
-    background-color: var(--secondary);
-    color: var(--white);
+/*
+ * TAULES RESPONSIVE
+ * Transforma la taula en targetes quan la pantalla és petita.
+ */
+@media (max-width: 600px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px; /* Amaga la capçalera */
+    }
+    tr { margin-bottom: 15px; border: 1px solid #ccc; }
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+    }
+    /* Afegeix el nom de la columna abans de cada cel·la */
+    td:before {
+        position: absolute;
+        top: 12px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        content: attr(data-label);
+    }
 }
-
-tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Utilitats */
-.text-right { text-align: right; }
-.mt-20 { margin-top: 20px; }

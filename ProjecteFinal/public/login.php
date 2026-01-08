@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Inicia la sessió de l'usuari.
                 $_SESSION['loggedin'] = true;
                 $_SESSION['user_id'] = $dades_usuari['id']; // Add user_id to session
-                $_SESSION['username'] = $dades_usuari['nom_usuari'];
+                $_SESSION['username'] = $dades_usuari['nom'];
                 $_SESSION['rol'] = $dades_usuari['rol'];
 
                 // Redirecció al dashboard.

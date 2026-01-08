@@ -22,12 +22,15 @@ if (session_status() === PHP_SESSION_NONE) {
             <a href="dashboard.php" style="margin-left: 15px;">Dashboard</a>
             <?php if ($_SESSION['rol'] === 'admin'): ?>
                 <a href="admin_users.php" style="margin-left: 15px;">Usuaris</a>
+                <a href="admin_plats.php" style="margin-left: 15px;">Gestió Plats</a>
             <?php endif; ?>
             <?php if ($_SESSION['rol'] === 'admin' || $_SESSION['rol'] === 'cuiner'): ?>
                 <a href="comandes_globals.php" style="margin-left: 15px;">Comandes Globals</a>
+                <a href="ingredients_resum.php" style="margin-left: 15px;">Ingredients</a>
             <?php endif; ?>
             <?php if ($_SESSION['rol'] === 'client'): ?>
                 <a href="menjar.php" style="margin-left: 15px;">Menú</a>
+                <a href="comandes_globals.php" style="margin-left: 15px;">El meu Historial</a>
             <?php endif; ?>
             <a href="logout.php" style="margin-left: 15px;">Tancar Sessió</a>
         <?php else: ?>

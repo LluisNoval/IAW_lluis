@@ -74,7 +74,7 @@ function registrarUsuari($db, $nom, $email, $pass): bool {
 function verificarUsuari($db, $login, $pass) {
     $stmt = $db->prepare("SELECT u.id, u.nom, u.password_hash, r.name as rol 
                           FROM usuaris u JOIN roles r ON u.role_id = r.id 
-                          WHERE u.nom = ? OR u.email = ?");
+                          WHERE LOWER(u.nom) = LOWER(?) OR LOWER(u.email) = LOWER(?)");
     $stmt->bind_param('ss', $login, $login);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
